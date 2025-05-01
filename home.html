@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UTM Timetable</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== SUPABASE-INSPIRED STYLES ========== */
+        :root {
+            --primary: #3ecf8e;
+            --primary-dark: #2dba7a;
+            --primary-light: #e3f7ed;
+            --text-primary: #1c1c1c;
+            --text-secondary: #666666;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --font-sans: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background-color: var(--background);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            margin-left: var(--space-md);
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background-color: var(--background);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: var(--space-md);
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: var(--space-md) 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            background-color: var(--surface);
+            color: var(--primary-dark);
+        }
+
+        .sidebar-link i {
+            margin-right: var(--space-sm);
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            padding: var(--space-lg);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: var(--space-md);
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            padding: var(--space-sm);
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--surface);
+            color: var(--primary-dark);
+        }
+
+        /* ========== OVERLAY ========== */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            z-index: 100;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: var(--space-md);
+            }
+            
+            .sidebar {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="mySidebar">
+        <div class="sidebar-header">
+            <button class="btn-icon" onclick="closeSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-nav">
+            <a class="sidebar-link" href="javascript: profile();">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="sidebar-link" href="javascript: course();">
+                <i class="fas fa-book"></i> Courses
+            </a>
+            <a class="sidebar-link" href="javascript: timetable();">
+                <i class="fas fa-calendar-alt"></i> Timetable
+            </a>
+            <a class="sidebar-link" href="javascript: compareTimetables();">
+                <i class="fas fa-exchange-alt"></i> Timetable Comparsion
+            </a>
+            <a class="sidebar-link" href="javascript: logout();">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Header -->
+    <header class="header">
+        <button class="btn-icon" onclick="openSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="header-title">UTM Faculty of Computing</div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-container">
+        <!-- Content will be loaded here dynamically -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-text">Copyright © AhmedWritesCode. All Rights Reserved</div>
+    </footer>
+
+    <script src="TTMS_Lib.js"></script>
+    <script>
+        // Initialize sidebar state
+        function openSidebar() {
+            document.getElementById("mySidebar").classList.add("open");
+            document.getElementById("sidebarOverlay").classList.add("active");
+        }
+
+        function closeSidebar() {
+            document.getElementById("mySidebar").classList.remove("open");
+            document.getElementById("sidebarOverlay").classList.remove("active");
+        }
+
+        // Close sidebar when clicking on overlay
+        document.getElementById("sidebarOverlay").addEventListener("click", closeSidebar);
+
+        // Check session and load initial content
+        console.log(sessionStorage.getItem("web_fc_utm_my_ttms"));
+        checkSession();
+        console.log('Load profile page');
+        $('#main-container').load('profile.html');
+
+        // Navigation functions
+        function logout() {
+            sessionStorage.removeItem("web_fc_utm_my_ttms");
+            closeSidebar();
+            window.location.href = "login.html";
+        }
+
+        function profile() {
+            closeSidebar();
+            console.log('Load profile page');
+            $('#main-container').load('profile.html');
+        }
+
+        function course() {
+            closeSidebar();
+            console.log('Load course page');
+            $('#main-container').load('course.html');
+        }
+
+        function timetable() {
+            closeSidebar();
+            console.log('Load timetable page');
+            $('#main-container').load('timetable.html');
+        }
+
+        function compareTimetables() {
+            closeSidebar();
+            console.log('Load compare timetables page');
+            $('#main-container').load('CompareTimetable.html');
+        }
+    </script>
+</body>
+</html>

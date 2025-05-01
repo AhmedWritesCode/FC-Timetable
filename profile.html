@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile | TTMS</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== SUPABASE-INSPIRED STYLES ========== */
+        :root {
+            --primary: #3ecf8e;
+            --primary-dark: #2dba7a;
+            --primary-light: #e3f7ed;
+            --text-primary: #1c1c1c;
+            --text-secondary: #666666;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --font-sans: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background-color: var(--background);
+            line-height: 1.5;
+        }
+
+        /* ========== LAYOUT ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        /* ========== CARD STYLES ========== */
+        .card {
+            background-color: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: var(--space-md);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-dark);
+        }
+
+        /* ========== PROFILE SECTION ========== */
+        .profile-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .profile-info {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            padding: var(--space-md);
+        }
+
+        .profile-image-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+
+        .info-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+            display: block;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .card {
+                padding: var(--space-md);
+            }
+            
+            .profile-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">User Profile</h1>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-info">
+
+                    <h3 style="margin-top: 0; margin-bottom: var(--space-md);">User Information</h3>
+
+                    <div class="info-group">
+                        <span class="info-label">Full Name</span>
+                        <p class="info-value" id="username">Loading...</p>
+                    </div>
+
+                    <div class="info-group">
+                        <span class="info-label">User Type</span>
+                        <p class="info-value" id="userType">Loading...</p>
+                    </div>
+
+                    <div class="info-group">
+                        <span class="info-label" id="idLabel">Identifier</span>
+                        <p class="info-value" id="matricno">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="profile-info">
+                    <h3 style="margin-top: 0; margin-bottom: var(--space-md);">User Image</h3>
+                    <div class="profile-image-container">
+                        <img id="profileImage" class="profile-image" src="https://via.placeholder.com/150" alt="Profile Image">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="TTMS_Lib.js"></script>
+    <script>
+        // Check session and load profile data
+        checkSession();
+
+        // Function to fetch random user data from API
+        async function fetchRandomUser() {
+            try {
+                const response = await fetch('https://randomuser.me/api/');
+                const data = await response.json();
+                return data.results[0];
+            } catch (error) {
+                console.error("Error fetching random user:", error);
+                return null;
+            }
+        }
+
+        // Load and display profile data
+        async function loadProfileData() {
+            // Load user data from session
+            const appStorage = JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms"));
+            console.log("User data:", appStorage.user_auth);
+
+            // Display basic user info
+            $('#username').text(appStorage.user_auth.full_name || 'Not available');
+            
+            // Set appropriate identifier label and value
+            const isLecturer = appStorage.user_auth.description === "Pensyarah";
+            $('#idLabel').text(isLecturer ? "Staff ID" : "Matric Number");
+            $('#matricno').text(appStorage.user_auth.login_name || 'Not available');
+            
+            // Display user type
+            $('#userType').text(appStorage.user_auth.description || 'Not available');
+
+            // Fetch random user data for demo purposes
+            const randomUser = await fetchRandomUser();
+            if (randomUser) {
+                // Set profile image
+                $('#profileImage').attr('src', randomUser.picture.large);
+                
+                // Set additional demo info
+                $('#userEmail').text(randomUser.email);
+                $('#userPhone').text(randomUser.phone);
+                $('#userLocation').text(
+                    `${randomUser.location.city}, ${randomUser.location.country}`
+                );
+            } else {
+                // Fallback if API fails
+                $('#userEmail').text('user@example.com');
+                $('#userPhone').text('+60 12-345 6789');
+                $('#userLocation').text('Skudai, Johor');
+            }
+        }
+
+        // Initialize the page
+        $(document).ready(function() {
+            loadProfileData();
+        });
+    </script>
+</body>
+</html>

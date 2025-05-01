@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Compare Timetables | TTMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== BASE STYLES ========== */
+        :root {
+            --primary: #3ecf8e;
+            --primary-dark: #2dba7a;
+            --primary-light: #e3f7ed;
+            --text-primary: #1c1c1c;
+            --text-secondary: #666666;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --font-sans: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background-color: var(--background);
+            line-height: 1.5;
+        }
+
+        /* ========== LAYOUT ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-md) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        /* ========== CARD STYLES ========== */
+        .card {
+            background-color: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        /* ========== FORM ELEMENTS ========== */
+        .form-group {
+            margin-bottom: var(--space-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* ========== SEARCH COMPONENTS ========== */
+        .search-container {
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+
+        .search-results {
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .result-item {
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .result-item:hover {
+            background-color: var(--surface);
+        }
+
+        /* ========== TIMETABLE STYLES ========== */
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-lg) 0;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .timetable th {
+            background-color: var(--surface);
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .timetable td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .timetable tr:last-child td {
+            border-bottom: none;
+        }
+
+        .timetable-cell {
+            min-height: 60px;
+        }
+
+        /* ========== COLOR CODING ========== */
+        .party1 {
+            background-color: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .party2 {
+            background-color: #e8f5e9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .clash {
+            background-color: #ffebee;
+        }
+
+        /* ========== LOADING STATES ========== */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== UTILITY CLASSES ========== */
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .mt-1 { margin-top: var(--space-sm); }
+        .mt-2 { margin-top: var(--space-md); }
+        .mt-3 { margin-top: var(--space-lg); }
+
+        .mb-1 { margin-bottom: var(--space-sm); }
+        .mb-2 { margin-bottom: var(--space-md); }
+        .mb-3 { margin-bottom: var(--space-lg); }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .card {
+                padding: var(--space-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="home.html" class="logo">Timetable Comparsion</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">Select Timetables</h1>
+            </div>
+
+            <div class="search-container">
+                <label class="form-label" for="searchInput1">User 1</label>
+                <div class="flex items-center">
+                    <input type="text" id="searchInput1" class="form-input" placeholder="Search by name...">
+                    <div id="loadingSpinner1" class="loading-spinner" style="display:none;"></div>
+                </div>
+                <div id="searchResults1" class="search-results"></div>
+            </div>
+
+            <div class="search-container">
+                <label class="form-label" for="searchInput2">User 2</label>
+                <div class="flex items-center">
+                    <input type="text" id="searchInput2" class="form-input" placeholder="Search by name...">
+                    <div id="loadingSpinner2" class="loading-spinner" style="display:none;"></div>
+                </div>
+                <div id="searchResults2" class="search-results"></div>
+            </div>
+
+            <div id="timetable-container"></div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Comparison Details</h2>
+            <div class="mt-2">
+                <h3>User Details</h3>
+                <p id="user1Details" class="party1">User 1: Not selected</p>
+                <p id="user2Details" class="party2">User 2: Not selected</p>
+            </div>
+            <div class="mt-2">
+                <h3>Match Details</h3>
+                <p id="clashSummary">No matches found</p>
+                <p id="detailsSummary" class="text-muted">Select two users to compare their timetables</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner" style="width: 32px; height: 32px; border-width: 4px;"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="SubjectManager.js"></script>
+    <script src="TTMS_Lib.js"></script>
+    <script>
+        let allUsers = [];
+        let user1Timetable = {};
+        let user2Timetable = {};
+        let user1 = {};
+        let user2 = {};
+
+        $(document).ready(function() {
+            cacheAllUsers();
+            $('#searchInput1').on('input', () => filterSearchResults(1));
+            $('#searchInput2').on('input', () => filterSearchResults(2));
+            initializeUser1();
+        });
+
+        async function cacheAllUsers() {
+            $('#loadingOverlay').show();
+            const subjectManager = new SubjectManager();
+            const appStorage = JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms"));
+            const userSessionId = appStorage.user_auth.session_id;
+            const adminSessionId = await subjectManager.fetchAdminSessionId(userSessionId);
+            const sesi = "2023/2024";
+            const semester = 2;
+
+            const [students, lecturers] = await Promise.all([
+                subjectManager.fetchAllStudents(adminSessionId, sesi, semester),
+                subjectManager.fetchAllLecturers(adminSessionId, sesi, semester)
+            ]);
+
+            allUsers = [...lecturers, ...students];
+            $('#loadingOverlay').hide();
+        }
+
+        function initializeUser1() {
+            const appStorage = JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms"));
+            const user = appStorage.user_auth;
+            $('#searchInput1').val(user.nama);
+            selectUser(user.nama, 1);
+        }
+
+        function filterSearchResults(fieldNumber) {
+            const searchTerm = $(`#searchInput${fieldNumber}`).val().toLowerCase();
+            const results = allUsers.filter(user => user.nama.toLowerCase().includes(searchTerm));
+            displaySearchResults(results, fieldNumber);
+        }
+
+        function displaySearchResults(results, fieldNumber) {
+            let resultsHtml = '';
+            results.forEach(user => {
+                const userId = user.no_matrik || user.no_pekerja;
+                const userType = user.no_matrik ? "Student" : "Lecturer";
+                resultsHtml += `
+                    <div class="result-item" onclick="selectUser('${user.nama}', ${fieldNumber})">
+                        <div>${user.nama}</div>
+                        <div class="text-muted">${userType} • ${userId}</div>
+                    </div>
+                `;
+            });
+
+            const resultsContainer = $(`#searchResults${fieldNumber}`);
+            resultsContainer.html(resultsHtml);
+            resultsContainer.toggleClass('active', results.length > 0);
+        }
+
+        async function selectUser(userName, fieldNumber) {
+            $(`#loadingSpinner${fieldNumber}`).show();
+            const selectedUser = allUsers.find(user => user.nama === userName);
+            if (selectedUser) {
+                const userId = selectedUser.no_matrik || selectedUser.no_pekerja;
+                if (fieldNumber === 1) {
+                    user1 = selectedUser;
+                    $(`#searchInput${fieldNumber}`).val(user1.nama);
+                    user1Timetable = await fetchUserTimetable(userId, user1.no_matrik ? 'student' : 'lecturer');
+                    displayUserDetails(1, user1);
+                } else {
+                    user2 = selectedUser;
+                    $(`#searchInput${fieldNumber}`).val(user2.nama);
+                    user2Timetable = await fetchUserTimetable(userId, user2.no_matrik ? 'student' : 'lecturer');
+                    displayUserDetails(2, user2);
+                }
+                displayTimetable(user1Timetable, user2Timetable);
+                const clashes = compareTimetables(user1Timetable, user2Timetable);
+                displaySummary(clashes);
+            }
+            $(`#loadingSpinner${fieldNumber}`).hide();
+            $(`#searchResults${fieldNumber}`).removeClass('active');
+        }
+
+        async function fetchUserTimetable(userId, userType) {
+            const subjectManager = new SubjectManager();
+            let subjects;
+            if (userType === 'student') {
+                subjects = await subjectManager.fetchLatestSemesterStudentSubjects(userId);
+            } else {
+                subjects = await subjectManager.fetchLatestSemesterLecturerSubjects(userId);
+            }
+            const timetable = {};
+            for (const subject of subjects) {
+                const timetableEntries = await subjectManager.fetchSubjectTimetable(subject.kod_subjek, subject.sesi, subject.semester, subject.seksyen);
+                timetableEntries.forEach(entry => {
+                    const key = `${entry.hari}-${entry.masa}`;
+                    timetable[key] = subject;
+                });
+            }
+            return timetable;
+        }
+
+        function displayTimetable(timetable1, timetable2) {
+            let timetableHtml = '<table class="timetable"><tr><th>Time / Day</th><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th></tr>';
+
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+            const timeSlots = { 2: '8 AM', 3: '9 AM', 4: '10 AM', 5: '11 AM', 6: '12 PM', 7: 'Lunch break', 8: '2 PM', 9: '3 PM', 10: '4 PM', 11: '5 PM' };
+
+            Object.keys(timeSlots).forEach(hour => {
+                timetableHtml += `<tr><td>${timeSlots[hour]}</td>`;
+                days.forEach((_, index) => {
+                    const key = `${index + 1}-${hour}`;
+                    const cellData1 = timetable1[key] ? `<div class="party1">${timetable1[key].kod_subjek} (${timetable1[key].seksyen})</div>` : '';
+                    const cellData2 = timetable2[key] ? `<div class="party2">${timetable2[key].kod_subjek} (${timetable2[key].seksyen})</div>` : '';
+                    const clashClass = cellData1 && cellData2 ? 'clash' : '';
+                    timetableHtml += `<td class="timetable-cell ${clashClass}">${cellData1}${cellData2}</td>`;
+                });
+                timetableHtml += '</tr>';
+            });
+            timetableHtml += '</table>';
+
+            document.getElementById('timetable-container').innerHTML = timetableHtml;
+        }
+
+        function compareTimetables(timetable1, timetable2) {
+            const clashes = [];
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+            const timeSlots = { 2: '8 AM', 3: '9 AM', 4: '10 AM', 5: '11 AM', 6: '12 PM', 7: 'Lunch break', 8: '2 PM', 9: '3 PM', 10: '4 PM', 11: '5 PM' };
+
+            Object.keys(timetable1).forEach(key => {
+                if (timetable2[key]) {
+                    clashes.push({
+                        day: days[key.split('-')[0] - 1],
+                        time: timeSlots[key.split('-')[1]],
+                        timetable1: timetable1[key],
+                        timetable2: timetable2[key]
+                    });
+                }
+            });
+            return clashes;
+        }
+
+        function displayUserDetails(userNumber, user) {
+            const userDetails = `User ${userNumber}: ${user.nama} (${user.no_matrik || user.no_pekerja})`;
+            document.getElementById(`user${userNumber}Details`).innerText = userDetails;
+        }
+
+        function displaySummary(clashes) {
+            const clashCount = clashes.length;
+            const clashDetails = clashes.map(clash => 
+                `Day: ${clash.day}, Time: ${clash.time}, ` +
+                `<span class="party1">${clash.timetable1.kod_subjek} (${clash.timetable1.seksyen})</span> and ` +
+                `<span class="party2">${clash.timetable2.kod_subjek} (${clash.timetable2.seksyen})</span>`
+            ).join('<br>');
+
+            document.getElementById('clashSummary').innerText = `Matches: ${clashCount}`;
+            document.getElementById('detailsSummary').innerHTML = clashCount > 0 ? 
+                `Details:<br>${clashDetails}` : 
+                `No timetable clashes found`;
+        }
+    </script>
+</body>
+</html>

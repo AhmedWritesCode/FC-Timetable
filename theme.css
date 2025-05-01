@@ -1,0 +1,55 @@
+:root {
+    --utm-primary: #800000; /* Maroon approximation */
+    --utm-accent: #FFD700; /* Gold approximation */
+    --utm-text: #333; /* Dark text for readability */
+    --utm-background: #FFF; /* White background */
+  }
+  
+  body {
+    font-family: 'EB Garamond', serif;
+    color: var(--utm-text);
+    background-color: var(--utm-background);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Libre Baskerville', serif;
+  }
+  
+  .header {
+    background-color: var(--utm-primary);
+    color: var(--utm-accent);
+  }
+  
+  .footer {
+    background-color: var(--utm-primary);
+    color: var(--utm-accent);
+  }
+  
+  .button {
+    background-color: var(--utm-primary);
+    color: var(--utm-background);
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: var(--utm-accent);
+  }
+  
+  .card {
+    background-color: var(--utm-background);
+    border: 1px solid var(--utm-primary);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Import fonts from Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap');
+  

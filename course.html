@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Courses | TTMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== STYLES ========== */
+        :root {
+            --primary: #3ecf8e;
+            --primary-dark: #2dba7a;
+            --primary-light: #e3f7ed;
+            --text-primary: #1c1c1c;
+            --text-secondary: #666666;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --font-sans: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background-color: var(--background);
+            line-height: 1.5;
+        }
+
+        /* ========== LAYOUT ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-md) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        /* ========== CARD STYLES ========== */
+        .card {
+            background-color: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        /* ========== TABLE STYLES ========== */
+        .table-container {
+            overflow-x: auto;
+            margin: var(--space-lg) 0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .table th {
+            background-color: var(--surface);
+            padding: var(--space-sm) var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .table td {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover {
+            background-color: rgba(62, 207, 142, 0.05);
+        }
+
+        /* ========== BUTTON STYLES ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-sm);
+            justify-content: center;
+            margin-top: var(--space-md);
+        }
+
+        /* ========== UTILITY CLASSES ========== */
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: var(--space-sm); }
+        .mt-2 { margin-top: var(--space-md); }
+        .mt-3 { margin-top: var(--space-lg); }
+
+        .mb-1 { margin-bottom: var(--space-sm); }
+        .mb-2 { margin-bottom: var(--space-md); }
+        .mb-3 { margin-bottom: var(--space-lg); }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .card {
+                padding: var(--space-md);
+            }
+            
+            .table th, .table td {
+                padding: var(--space-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="home.html" class="logo">My Courses</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title" id="pageTitle">My Courses</h1>
+            </div>
+
+            <div class="table-container">
+                <table class="table" id="subjectsTable">
+                    <thead>
+                        <tr>
+                            <th>Subject Code</th>
+                            <th>Course Code</th>
+                            <th>Subject Name</th>
+                            <th>Section</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="showPreviousSemester()">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <button class="btn btn-outline" onclick="showNextSemester()">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="TTMS_Lib.js"></script>
+    <script src="SubjectManager.js"></script>
+    <script>
+        // Initialize the SubjectManager
+        const subjectManager = new SubjectManager();
+        
+        let subjectsData = [];
+        let currentSemesterIndex = 0;
+        let semesters = [];
+
+        // Process the subjects data to group by semester and session
+        function processSubjectsData() {
+            var semesterMap = {};
+
+            subjectsData.forEach(subject => {
+                var key = subject.sesi + '-' + subject.semester;
+                if (!semesterMap[key]) {
+                    semesterMap[key] = [];
+                }
+                semesterMap[key].push(subject);
+            });
+
+            semesters = Object.keys(semesterMap).sort().reverse().map(key => semesterMap[key]);
+        }
+
+        // Display subjects of the current semester
+        function displaySubjects() {
+            var subjectsTable = document.getElementById('subjectsTable').getElementsByTagName('tbody')[0];
+            subjectsTable.innerHTML = '';
+
+            if (semesters.length > 0) {
+                // Update the title with the current year and semester
+                var currentSemester = semesters[currentSemesterIndex][0];
+                var pageTitle = `Subjects - Semester ${currentSemester.semester}, ${currentSemester.sesi}`;
+                document.getElementById('pageTitle').innerText = pageTitle;
+
+                semesters[currentSemesterIndex].forEach(subject => {
+                    var row = subjectsTable.insertRow();
+                    row.insertCell(0).innerText = subject.kod_subjek;
+                    row.insertCell(1).innerText = subject.kod_kursus;
+                    row.insertCell(2).innerText = subject.nama_subjek;
+                    row.insertCell(3).innerText = subject.seksyen;
+                });
+            } else {
+                var row = subjectsTable.insertRow();
+                var cell = row.insertCell(0);
+                cell.colSpan = 4;
+                cell.innerText = "No subjects available";
+                cell.className = "text-center text-muted";
+            }
+        }
+
+        // Show previous semester subjects
+        function showPreviousSemester() {
+            if (currentSemesterIndex < semesters.length - 1) {
+                currentSemesterIndex++;
+                displaySubjects();
+            }
+        }
+
+        // Show next semester subjects
+        function showNextSemester() {
+            if (currentSemesterIndex > 0) {
+                currentSemesterIndex--;
+                displaySubjects();
+            }
+        }
+
+        // Fetch subjects data based on user type and display them
+        async function fetchAndDisplaySubjects() {
+            let appStorage = JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms"));
+            let userId = appStorage.user_auth.id;
+            if(isStudent()) userId = appStorage.user_auth.login_name;
+
+            if (isStudent()) {
+                subjectsData = await subjectManager.fetchStudentSubjects(userId);
+            } else {
+                subjectsData = await subjectManager.fetchLecturerSubjects(userId);
+            }
+
+            processSubjectsData();
+            displaySubjects();
+        }
+
+        // Initial setup
+        checkSession();
+        fetchAndDisplaySubjects();
+    </script>
+</body>
+</html>

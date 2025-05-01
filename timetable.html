@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UTM Tempo - Weekly Timetable</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ========== SUPABASE-INSPIRED STYLES ========== */
+        :root {
+            --primary: #3ecf8e;
+            --primary-dark: #2dba7a;
+            --primary-light: #e3f7ed;
+            --text-primary: #1c1c1c;
+            --text-secondary: #666666;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --font-sans: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background-color: var(--background);
+            line-height: 1.5;
+        }
+
+        /* ========== LAYOUT ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-lg);
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            background-color: white;
+            color: var(--primary);
+            padding: var(--space-md) var(--space-lg);
+            margin-bottom: var(--space-lg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 2px solid var(--primary);
+        }
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        /* ========== SEARCH BAR ========== */
+        .search-bar {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .search-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: var(--space-sm) var(--space-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* ========== TIMETABLE ========== */
+        .timetable-container {
+            overflow-x: auto;
+            margin-bottom: var(--space-lg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .timetable th {
+            background-color: var(--primary);
+            color: white;
+            padding: var(--space-md);
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .timetable td {
+            padding: var(--space-md);
+            border: 1px solid var(--border);
+            vertical-align: top;
+            min-width: 120px;
+        }
+
+        .timetable tr:nth-child(even) td {
+            background-color: var(--surface);
+        }
+
+        .timetable tr:hover td {
+            background-color: var(--primary-light);
+        }
+
+        .time-col {
+            font-weight: 500;
+            background-color: var(--surface) !important;
+        }
+
+        .subject-entry {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            padding: var(--space-sm);
+            border-radius: 4px;
+            background-color: rgba(62, 207, 142, 0.1);
+            margin-bottom: 4px;
+        }
+
+        .subject-code {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .subject-room {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* ========== RESPONSIVE ADJUSTMENTS ========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-md);
+            }
+            
+            .header {
+                padding: var(--space-md);
+            }
+            
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="search-bar">
+                <input type="text" id="userInput" class="search-input" placeholder="Enter User ID">
+                <button onclick="updateTimetable()" class="search-btn">
+                    <i class="fas fa-search"></i> Check
+                </button>
+            </div>
+        </div>
+
+        <div class="timetable-container">
+            <table class="timetable" id="timetable">
+                <!-- Timetable will be generated here -->
+            </table>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="SubjectManager.js"></script>
+    <script src="TTMS_Lib.js"></script>
+    <script>
+        $(document).ready(function() {
+            if (checkSession()) { 
+                initializeTimetable();
+            }
+        });
+
+        async function initializeTimetable() {
+            const appStorage = JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms"));
+            const userId = appStorage.user_auth.description === "Pensyarah" ? appStorage.user_auth.no_pekerja : appStorage.user_auth.login_name;
+            $('#userInput').attr('placeholder', 'Enter User ID (e.g., ' + userId + ')');
+            await fetchAndDisplayTimetable(userId);
+        }
+
+        async function fetchAndDisplayTimetable(userId) {
+    const subjectManager = new SubjectManager();
+    let latestSemesterSubjects = [];
+
+    if (isLecturerId(userId)) {
+        latestSemesterSubjects = await subjectManager.fetchLatestSemesterLecturerSubjects(userId);
+    } else {
+        latestSemesterSubjects = await subjectManager.fetchLatestSemesterStudentSubjects(userId);
+    }
+
+    let timetableHtml = `
+        <tr>
+            <th>Time</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+        </tr>
+    `;
+
+    const timeSlots = { 
+        2: '8:00 AM', 
+        3: '9:00 AM', 
+        4: '10:00 AM', 
+        5: '11:00 AM', 
+        6: '12:00 PM', 
+        7: '1:00 PM', 
+        8: '2:00 PM', 
+        9: '3:00 PM', 
+        10: '4:00 PM', 
+        11: '5:00 PM' 
+    };
+
+    Object.keys(timeSlots).forEach(hour => {
+        timetableHtml += `<tr>
+            <td class="time-col">${timeSlots[hour]}</td>`;
+        
+        // Monday (1) to Friday (5)
+        for (let day = 1; day <= 5; day++) {
+            timetableHtml += `<td id="cell-${hour}-${day}"></td>`;
+        }
+        
+        timetableHtml += '</tr>';
+    });
+
+    $('#timetable').html(timetableHtml);
+
+    // Clear all cells first
+    $('.timetable td').not('.time-col').html('');
+
+    for (const subject of latestSemesterSubjects) {
+        const timetableEntries = await subjectManager.fetchSubjectTimetable(
+            subject.kod_subjek, 
+            subject.sesi, 
+            subject.semester, 
+            subject.seksyen
+        );
+        
+        timetableEntries.forEach(entry => {
+            // Convert backend day numbers (Sun=1, Mon=2, etc.) to our format (Mon=1, Tue=2, etc.)
+            const newDay = entry.hari - 1; // Sunday(1) becomes 0 (ignored), Monday(2) becomes 1, etc.
+            
+            // Only process Monday(1) to Friday(5) - skip Sunday
+            if (newDay >= 1 && newDay <= 5) {
+                const cellId = `cell-${entry.masa}-${newDay}`;
+                const cellContent = `
+                    <div class="subject-entry">
+                        <div class="subject-name">${subject.nama_subjek}</div>
+                        <div class="subject-code">${subject.kod_subjek}-${subject.seksyen}</div>
+                        <div class="subject-room">${entry.ruang.nama_ruang_singkatan}</div>
+                    </div>
+                `;
+                
+                $(`#${cellId}`).append(cellContent);
+            }
+        });
+    }
+}
+        function updateTimetable() {
+            const userId = $('#userInput').val() || JSON.parse(sessionStorage.getItem("web_fc_utm_my_ttms")).user_auth.login_name;
+            fetchAndDisplayTimetable(userId);
+        }
+
+        function checkSession() {
+            if (!sessionStorage.getItem("web_fc_utm_my_ttms")) {
+                window.location.href = "login.html";
+                return false;
+            }
+            return true;
+        }
+
+        function isLecturerId(id) {
+            return /^\d+$/.test(id);
+        }
+    </script>
+</body>
+</html>
